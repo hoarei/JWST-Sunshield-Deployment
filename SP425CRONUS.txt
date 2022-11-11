@@ -1,0 +1,211 @@
+#Citation: Laskey MCC Sim4B CRONUS-A script.docx from canvas
+import time
+from openpyxl import load_workbook
+#SET FILE PATH DEPENDS ON LOCATION
+filepath = "/Users/jboet/Desktop/CRONUSBOOK.xlsx"
+wb = load_workbook(filepath)
+sheet = wb.active
+
+#Perform Systems Check
+def systems_check(int):
+    begin_check = str(input('\nEnter "start" to begin systems check \n'))
+    while begin_check != 'start':
+        begin_check = str(input('Enter "start" to begin systems check\n'))
+    hidden_counter = 1
+    while begin_check =='start':
+        print('\nChecking Spacecraft Systems. Please wait...\n')
+    #First error of resetting GCM
+        time.sleep(5)
+        if hidden_counter == 1:
+            print('\n***S-band Antenna----ERROR***\n')
+            time.sleep(3)
+            print('***Ka-band Antenna----ERROR***\n')
+            time.sleep(3)
+            print('***Ground Station Connection----ERROR***\n')
+            time.sleep(3)
+            print('ERROR DETECTED with command uplink')
+            reconnect_gcm = str(input('\nEnter "reset gcm" to reset the ground command modulator:\n'))
+            if reconnect_gcm == 'reset gcm':
+                hidden_counter = hidden_counter -1
+                print('\nResetting Ground Command Modulator. Please wait...\n')
+                time.sleep(5)
+                print('Ground Command Modulator has been reset\n')
+        elif hidden_counter != 1:
+            print('\n***S-band Antenna----GO***\n')
+            time.sleep(3)
+            print('***Ka-band Antenna----GO***\n')
+            time.sleep(3)
+            print('***Ground Station Connection----GO***\n')
+            time.sleep(1)
+            begin_check = str(input('Enter "start" to re-start the systems check\nEnter "go" if all systems are GO \n'))
+            return()
+
+#Call systems check function, prep for rest of sim
+systems_check(int)
+simulation_end = 1
+while simulation_end == 1:
+
+#HOLD WAIT FOR ADCO COMMAND
+    print('\nAwait systems check and commands from ADCO.\n')
+    time.sleep(10)
+    #Command menu
+    jwst = str(input('\nChoose from the following menu of commands:\n-->full power on antenna (s or ka)\n-->low power on antenna (s or ka)\n-->slew antenna (s or ka)\n-->systems check\n-->frequency check\n-->microshutter check\n-->frequency correction\n\nEnter "freq check" to check the status of the antenna frequencies\n'))
+    #frequency check
+    while jwst!= 'freq check':
+        jwst = str(input('Enter "freq check" to check the status of the antenna frequencies\n'))
+    hidden_counter = 1
+    while jwst == 'freq check':
+        if hidden_counter == 1:
+            print('\nChecking antenna frequencies. Please wait...\n')
+            time.sleep(5)
+            sband_freq = sheet.cell(row=(2),column=(4))
+            kaband_freq = sheet.cell(row=(2),column=(5))
+            print('\nS-band Antenna frequency is currently at:',sband_freq.value,'GHz\n')
+            time.sleep(2)
+            print('\nS-band Antenna frequency is nominal for pre-sunshield deployment.\n')
+            time.sleep(2)
+            print('\nKa-band Antenna frequency is currently at: ',kaband_freq.value,'GHz\n')
+            time.sleep(2)
+            print('\nKa-band Antenna frequency is nominal for pre-sunshield deployment.\n')
+            time.sleep(2)
+            jwst_check=str(input('\nIf antenna antenna frequencies are not nominal, wait 10 seconds and enter "freq check" again.\n---OR---\nEnter "menu" to return to main menu\n'))
+            #Transfer SPARTAN
+            while jwst_check != 'menu':
+                jwst_check=str(input('\nIf antenna antenna frequencies are not nominal, wait 10 seconds and enter "freq check" again.\n---OR---\nEnter "menu" to return to main menu\n'))
+            while jwst_check =='menu':
+                print('\nTransfer to SPARTAN. Await further commands.\n')
+                time.sleep(10)
+                hidden_counter =hidden_counter -1
+                jwst = str(input('\nChoose from the following menu of commands:\n-->full power on antenna (s or ka)\n-->low power on antenna (s or ka)\n-->slew antenna (s or ka)\n-->systems check\n-->frequency check\n-->microshutter check\n-->frequency correction\n\nEnter "micro check" to check the status of the telescope microshutters\n'))
+                while jwst != 'micro check':
+                    jwst = str(input('Enter "micro check" to check the status of the telescope microshutters\n'))
+                while jwst == 'micro check':
+                        print('\nChecking microshutter status. Please wait...\n')
+                        time.sleep(5)
+                        print('\n***Microshutter----010110101001101***\n')
+                        time.sleep(3)
+                        print('ERROR DETECTED downlink demodulation unsuccesful')
+                        reconnect_gtm = str(input('\nEnter "reset gtm" to reset the ground telemetry modulator:\n'))
+                        #Reset GTM Anomoly 
+                        while reconnect_gtm != 'reset gtm':
+                            reconnect_gtm = str(input('\nEnter "reset gtm" to reset the ground telemetry modulator:\n'))
+                        while reconnect_gtm == 'reset gtm':
+                            print('\nResetting Ground Telemetry Modulator. Please wait...\n')
+                            time.sleep(5)
+                            print('\n***Connection lost to microshutter----ERROR***\n')
+                            time.sleep(3)
+                            print('System failure----verify connection\n')
+                            jwst_check=str(input('Enter "verify pwr" to check S-band and Ka-band Antenna status:\n'))
+                            while jwst_check != 'verify pwr':
+                                jwst_check=str(input('Enter "verify pwr" to check S-band and Ka-band Antenna status\n'))
+                            while jwst_check == 'verify pwr':
+                                print('\nVerifying S-band Antenna Power. Please wait...\n')
+                                print('\nVerifying Ka-band Antenna Power. Please wait...\n')
+                                time.sleep(10)
+                                print('S-band Antenna Power---100%\n')
+                                time.sleep(3)
+                                print('Ka-band Antenna Power---50%\n')
+                                time.sleep(3)
+                                print('Unable to complete downlink from microshutter status\n')
+                                time.sleep(3)
+                                ka_volt = sheet.cell(row=(2),column=(1))
+                                print('Ka-band Antenna power:', ka_volt.value,'V\n')
+                                ka_power=str(input('Enter "full pwr ka" to set Ka-band Antenna to 100% power:\n'))
+                                while ka_power != 'full pwr ka':
+                                    ka_power=str(input('Enter "full pwr ka" to set Ka-band Antenna to 100% power:\n'))
+                                while ka_power == 'full pwr ka':
+                                    print('\nKa-band Antenna is operating at 50% power...awaiting full power up...\n')
+                                    time.sleep(10)
+                                    print('Ka-band Antenna is operating at 75% power...awaiting full power up...\n')
+                                    time.sleep(10)
+                                    jwst_check=str(input('\nIf antenna is not yet at full power, wait 10 seconds and "verify pwr" again.\n---OR---\nEnter "menu" to return to main menu\n'))
+                                    while jwst_check != 'verify pwr':
+                                        jwst_check=str(input('Enter "verify pwr" to check S-band and Ka-band Antenna status\n'))
+                                    while jwst_check == 'verify pwr':
+                                        time.sleep(5)
+                                        ka_volt=sheet.cell(row=(3),column=(1))
+                                        print('\nKa-band Antenna power:',ka_volt.value,'V')
+                                        time.sleep(2)
+                                        print('\nKa-band Antenna Power---100%\n')
+                                        time.sleep(2)
+                                        jwst_check=str(input('\nIf antenna is not yet at full power, wait 10 seconds and "verify pwr" again.\n---OR---\nEnter "menu" to return to main menu\n'))
+                                        jwst = str(input('\nChoose from the following menu of commands:\n-->full power on antenna (s or ka)\n-->low power on antenna (s or ka)\n-->slew antenna (s or ka)\n-->systems check\n-->frequency check\n-->microshutter check\n-->frequency correction\n'))
+                                        hidden_counter = 1
+                                        #Don't forget second microshutter check
+                                        while jwst != 'micro check':
+                                            jwst = str(input('Enter "micro check" to check the status of the telescope microshutters\n'))
+                                        while jwst == 'micro check':
+                                            if hidden_counter == 1:
+                                                print('\nChecking microshutter status. Please wait...\n')
+                                                time.sleep(5)
+                                                print('\n***Microshutter----GO***\n')
+                                                time.sleep(2)
+                                                #HOLD FOR ADCO
+                                                print('\nHold for telemetry data from ADCO\n')
+                                                time.sleep(10)
+                                                jwst = str(input('\nChoose from the following menu of commands:\n-->full power on antenna (s or ka)\n-->low power on antenna (s or ka)\n-->slew antenna (s or ka)\n-->systems check\n-->frequency check\n-->microshutter check\n-->frequency correction\n\nEnter "slew s" to slew the s-band antenna towards TDRSS\n'))
+                                                while jwst != 'slew s':
+                                                    jwst = str(input('Enter "slew s" to slew the s-band antenna towards TDRSS'))
+                                                while jwst == 'slew s':
+                                                    print('\nGathering Location Telemetry. Please wait...\n')
+                                                    time.sleep(5)
+                                                    TDRSS_location = sheet.cell(row=(2),column=(2))
+                                                    jwst_location = sheet.cell(row=(2),column=(3))
+                                                    print('TDRSS is currently located at:',TDRSS_location.value,'deg\n')
+                                                    time.sleep(2)
+                                                    print('S-band Antenna is currently angled at:',jwst_location.value,'deg\n')
+                                                    jwst = str(input('Enter "slew" to begin slewing S-band Antenna towards TDRSS\n'))
+                                                    #Slew for TDRSS commands
+                                                    while jwst !='slew':
+                                                        jwst = str(input('Enter "slew" to begin slewing S-band Antenna towards TDRSS\n'))
+                                                    while jwst =='slew':
+                                                        print('\nAntenna slew commencing...\n')
+                                                        time.sleep(10)
+                                                        print('\nS-band Antenna located at:',TDRSS_location.value,'deg\n')
+                                                        time.sleep(3)
+                                                        print('\nS-band Antenna at nominal position.\n')
+                                                        time.sleep(3)
+                                                        print('\nS-band Antenna and TDRSS alignment succesful.\n')
+                                                        time.sleep(3)
+                                                        print('\nAdjust antenna frequencies for post sunshield deployment.\n')
+                                                        time.sleep(3)
+                                                        jwst = str(input('\nChoose from the following menu of commands:\n-->full power on antenna (s or ka)\n-->low power on antenna (s or ka)\n-->slew antenna (s or ka)\n-->systems check\n-->frequency check\n-->microshutter check\n-->frequency correction\n\nEnter "freq correction" to corect the antenna frequencies for sun-shieled deployment status.\n'))
+                                                        #frequency correction for post deployment 
+                                                        while jwst != 'freq correction':
+                                                            jwst = str(input('Enter "freq correction" to correct the antenna frequencies for sun-shieled deployment status.\n'))
+                                                        while jwst == 'freq correction':
+                                                            freq = str(input('\nSelect frequency correction command:\n-->Pre-sunshield Deployment \n-->Post-sunshield Deployment\n\nEnter "post deploy" to change the antenna frequencies to Post-sunshield Deployment wavelengths\n'))
+                                                            while freq != 'post deploy':
+                                                                freq = str(input('\nSelect frequency correction command:\n-->Pre-sunshield Deployment \n-->Post-sunshield Deployment'))
+                                                            while freq == 'post deploy':
+                                                                print('\nAdjusting antenna frequencies. Please wait...')
+                                                                time.sleep(6)
+                                                                spost_deploy = sheet.cell(row=(2), column=(6))
+                                                                kapost_deploy = sheet.cell(row=(2), column=(7))
+                                                                print('\nS-band Antenna frequency is now at:',spost_deploy.value,'GHz\n')
+                                                                time.sleep(2)
+                                                                print('\nS-band Antenna frequency is nominal for post-sunshield deployment.\n')
+                                                                time.sleep(2)
+                                                                print('\nKa-band Antenna frequency is now at: ',kapost_deploy.value,'GHz\n')
+                                                                time.sleep(2)
+                                                                print('\nKa-band Antenna frequency is nominal for post-sunshield deployment.\n')
+                                                                time.sleep(5)
+                                                                break
+                                                        #End simulation
+                                                            print('\nSimulation End for CRONUS. Transfer to SPARTAN.\n')
+                                                            break
+                                                        break
+                                                    break
+                                                break
+                                            break
+                                        break
+                                    break
+                                break
+                            break
+                        break
+                        break
+                break
+            break
+        break
+    break
+    break
